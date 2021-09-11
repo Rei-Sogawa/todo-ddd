@@ -1,26 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 
-function App() {
+import { renderRoute } from '@/renderRoute'
+import { Pattern, routeByPattern } from '@/routes'
+import { useAuth } from '@/service/auth'
+import { Header, HeaderProps } from '@/ui/components/Header'
+import { useSignOut } from '@/usecase/auth'
+
+export type SignOut = HeaderProps['onSignOut']
+
+const App = () => {
+  const { uid } = useAuth()
+  const isLoggedIn = !!uid
+
+  const signOut = useSignOut()
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <Router>
+      <Header isLoggedIn={isLoggedIn} onSignOut={signOut} />
+      <Switch>
+        {Object.keys(routeByPattern).map((_) => {
+          const pattern = _ as Pattern
+          return (
+            <Route
+              key={pattern}
+              path={pattern}
+              exact
+              render={() => renderRoute({ pattern, isLoggedIn })}
+            />
+          )
+        })}
+      </Switch>
+    </Router>
+  )
 }
 
-export default App;
+export default App
