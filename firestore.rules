@@ -1,8 +1,23 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function authUid() {
+      return request.auth.uid
+    }
+
+    function isAuthenticated() {
+      return authUid() != null
+    }
+
     match /todos/{todoId} {
-      allow read, write: if true;
+      function isCreatedByMe() {
+        return request.resource.data.userId == authUid()
+      }
+
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isCreatedByMe();
+      allow delete: if isCreatedByMe()
     }
   }
 }
