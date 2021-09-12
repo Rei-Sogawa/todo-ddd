@@ -11,7 +11,7 @@ service cloud.firestore {
 
     match /todos/{todoId} {
       function isCreatedByMe() {
-        return request.resource.data.userId == authUid()
+        return resource.data.userId == authUid()
       }
 
       allow read: if isAuthenticated();
